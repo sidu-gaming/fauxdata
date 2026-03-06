@@ -1,5 +1,10 @@
 # Log
 
+## 2026-03-06 — v0.1.3
+
+- Add Python classifiers to pyproject.toml (3.11, 3.12, 3.13, MIT) — fixes pyversions badge
+- Fix version tests to read `__version__` dynamically instead of hardcoded string
+
 ## 2026-03-06 — v0.1.2
 
 - Bump to 0.1.2 and publish to PyPI

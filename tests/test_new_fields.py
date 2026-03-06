@@ -110,15 +110,17 @@ def test_generate_string_pattern():
 # --- CLI --version ---
 
 def test_cli_version():
+    from fauxdata import __version__
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
-    assert "0.1.1" in result.output
+    assert __version__ in result.output
 
 
 def test_cli_version_short():
+    from fauxdata import __version__
     result = runner.invoke(app, ["-V"])
     assert result.exit_code == 0
-    assert "0.1.1" in result.output
+    assert __version__ in result.output
 
 
 # --- CLI generate with new fields via YAML ---
