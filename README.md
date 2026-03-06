@@ -1,3 +1,7 @@
+[![PyPI version](https://img.shields.io/pypi/v/fauxdata-cli.svg?label=PyPI%20version)](https://pypi.org/project/fauxdata-cli/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/fauxdata-cli.svg)](https://pypi.org/project/fauxdata-cli/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/aborruso/fauxdata)
+
 # fauxdata
 
 **fauxdata** is a command-line tool for generating and validating realistic fake datasets from simple YAML schemas.
