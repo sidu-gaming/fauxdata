@@ -20,7 +20,7 @@
     --bg2: #0a110a;
     --bg3: #0d160d;
     --text: #c8ffc8;
-    --text-dim: #5a8a5a;
+    --text-dim: #7aaa7a;   /* lifted from #5a8a5a for WCAG AA contrast */
     --border: #1a3a1a;
   }
 
@@ -35,21 +35,26 @@
     font-size: 14px;
     line-height: 1.6;
     overflow-x: hidden;
-    cursor: none;
   }
 
-  /* custom cursor */
-  .cursor {
-    position: fixed;
-    width: 12px;
-    height: 20px;
-    background: var(--green);
-    pointer-events: none;
-    z-index: 9999;
-    mix-blend-mode: difference;
-    animation: blink-cursor 1s step-end infinite;
-    transform: translate(-2px, -2px);
+  /* custom cursor — only on pointer devices */
+  @media (hover: hover) and (pointer: fine) {
+    body { cursor: none; }
+    .cursor {
+      position: fixed;
+      width: 12px;
+      height: 20px;
+      background: var(--green);
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference;
+      animation: blink-cursor 1s step-end infinite;
+      transform: translate(-2px, -2px);
+    }
   }
+  .cursor { display: none; }
+  @media (hover: hover) and (pointer: fine) { .cursor { display: block; } }
+
   @keyframes blink-cursor {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
@@ -72,7 +77,53 @@
     z-index: 1000;
   }
 
-  /* glow on text */
+  /* noise grain */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    html { scroll-behavior: auto; }
+    .prompt-text { border-right: none; }
+    .anim-row { opacity: 1 !important; }
+  }
+
+  /* focus styles */
+  :focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 3px;
+  }
+
+  /* skip link */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    background: var(--bg3);
+    color: var(--green);
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--green);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    z-index: 9999;
+    text-decoration: none;
+  }
+  .skip-link:focus { top: 0.5rem; }
+
+  /* helpers */
   .glow { text-shadow: 0 0 8px var(--green), 0 0 20px rgba(0,255,65,0.3); }
   .amber { color: var(--amber); }
   .red { color: var(--red); }
@@ -83,10 +134,66 @@
   .container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
   }
 
-  /* ─── HERO ─────────────────────────────────────────────── */
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(5, 10, 5, 0.95);
+    backdrop-filter: blur(4px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-logo {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.15s;
+  }
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-gh {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--green) !important;
+    border: 1px solid var(--green-dim);
+    padding: 0.3rem 0.8rem;
+    font-size: 12px !important;
+    transition: background 0.15s !important;
+  }
+  .nav-gh:hover { background: var(--green-dark) !important; }
+
+  /* hide nav text links on small screens — keep only GitHub */
+  .nav-text-links { display: flex; gap: 1.5rem; }
+  @media (max-width: 600px) {
+    .nav-text-links { display: none; }
+  }
+
+  /* ─── HERO ─── */
   #hero {
     min-height: 100vh;
     display: flex;
@@ -94,7 +201,7 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 5rem 1.5rem 4rem;
     position: relative;
   }
 
@@ -106,20 +213,36 @@
     background: linear-gradient(90deg, transparent, var(--green), transparent);
   }
 
+  /* ASCII logo: shown only on wider screens */
   .ascii-logo {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: clamp(7px, 1.5vw, 13px);
+    font-size: clamp(6px, 1.4vw, 13px);
     line-height: 1.2;
     color: var(--green);
     text-shadow: 0 0 10px rgba(0,255,65,0.5);
     white-space: pre;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
+    animation: fadeInDown 0.8s ease both;
+    overflow: hidden;
+  }
+  @media (max-width: 700px) { .ascii-logo { display: none; } }
+
+  /* Text logo: fallback on mobile */
+  .text-logo {
+    display: none;
+    font-family: 'VT323', monospace;
+    font-size: clamp(52px, 20vw, 80px);
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(0,255,65,0.5);
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
     animation: fadeInDown 0.8s ease both;
   }
+  @media (max-width: 700px) { .text-logo { display: block; } }
 
   .tagline {
     font-family: 'VT323', monospace;
-    font-size: clamp(28px, 5vw, 52px);
+    font-size: clamp(28px, 6vw, 52px);
     color: var(--green);
     text-shadow: 0 0 15px rgba(0,255,65,0.6);
     margin-bottom: 0.5rem;
@@ -128,7 +251,7 @@
 
   .subtagline {
     color: var(--text-dim);
-    font-size: 13px;
+    font-size: clamp(11px, 2.5vw, 13px);
     letter-spacing: 0.15em;
     text-transform: uppercase;
     margin-bottom: 3rem;
@@ -141,13 +264,14 @@
     gap: 0.5rem;
     background: var(--bg2);
     border: 1px solid var(--border);
-    padding: 0.75rem 1.5rem;
-    font-size: 15px;
+    padding: 0.75rem 1.25rem;
+    font-size: clamp(11px, 2.5vw, 15px);
     animation: fadeInDown 0.8s ease 0.6s both;
-    position: relative;
+    max-width: 100%;
+    overflow: hidden;
   }
 
-  .hero-prompt::before { content: '$ '; color: var(--green-dim); }
+  .hero-prompt::before { content: '$ '; color: var(--green-dim); flex-shrink: 0; }
 
   .prompt-text {
     overflow: hidden;
@@ -179,15 +303,16 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     animation: pulse 2s ease infinite;
+    white-space: nowrap;
   }
   @keyframes pulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
   }
 
-  /* ─── SECTION ─────────────────────────────────────────── */
+  /* ─── SECTIONS ─── */
   section {
-    padding: 5rem 0;
+    padding: 4rem 0;
     border-bottom: 1px solid var(--border);
   }
 
@@ -201,7 +326,7 @@
 
   h2 {
     font-family: 'VT323', monospace;
-    font-size: clamp(32px, 5vw, 52px);
+    font-size: clamp(32px, 6vw, 52px);
     color: var(--green);
     line-height: 1.1;
     margin-bottom: 1.5rem;
@@ -209,14 +334,12 @@
 
   p { color: var(--text); margin-bottom: 1rem; max-width: 680px; }
 
-  /* ─── TERMINAL WINDOW ─────────────────────────────────── */
+  /* ─── TERMINAL ─── */
   .terminal {
     background: var(--bg2);
     border: 1px solid var(--border);
-    border-radius: 0;
     margin: 2rem 0;
     overflow: hidden;
-    position: relative;
   }
 
   .terminal-bar {
@@ -228,21 +351,24 @@
     border-bottom: 1px solid var(--border);
     font-size: 12px;
     color: var(--text-dim);
+    flex-wrap: wrap;
   }
 
-  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .dot.r { background: #ff5f57; }
   .dot.y { background: #febc2e; }
   .dot.g { background: #28c840; }
 
   .terminal-body {
-    padding: 1.5rem;
-    font-size: 13px;
+    padding: 1.25rem;
+    font-size: clamp(11px, 2vw, 13px);
     line-height: 1.8;
-    min-height: 120px;
+    min-height: 80px;
+    overflow-x: auto;   /* horizontal scroll on mobile */
+    -webkit-overflow-scrolling: touch;
   }
 
-  .t-line { display: block; }
+  .t-line { display: block; white-space: nowrap; }
   .t-cmd::before { content: '$ '; color: var(--green-dim); }
   .t-out { color: var(--text-dim); padding-left: 1rem; }
   .t-pass { color: var(--green); }
@@ -258,22 +384,20 @@
     to { opacity: 1; transform: translateX(0); }
   }
 
-  /* ─── COMPARISON ─────────────────────────────────────── */
+  /* ─── COMPARE ─── */
   .compare-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     margin: 2rem 0;
   }
-
   @media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
 
   .compare-card {
     border: 1px solid var(--border);
-    padding: 1.5rem;
+    padding: 1.25rem;
     background: var(--bg2);
   }
-
   .compare-card.bad { border-color: rgba(255,49,49,0.3); }
   .compare-card.good { border-color: rgba(0,255,65,0.3); }
 
@@ -282,7 +406,6 @@
     font-size: 22px;
     margin-bottom: 1rem;
   }
-
   .compare-card.bad h3 { color: var(--red); }
   .compare-card.good h3 { color: var(--green); }
 
@@ -292,16 +415,18 @@
   .check-list.fails li::before { content: '✗'; color: var(--red); }
   .check-list.passes li::before { content: '✓'; color: var(--green); }
 
-  /* ─── SCHEMA ─────────────────────────────────────────── */
+  /* ─── CODE BLOCK ─── */
   .code-block {
     background: var(--bg2);
     border: 1px solid var(--border);
     border-left: 3px solid var(--green);
-    padding: 1.5rem;
+    padding: 1.25rem;
     overflow-x: auto;
-    font-size: 13px;
+    -webkit-overflow-scrolling: touch;
+    font-size: clamp(11px, 2vw, 13px);
     line-height: 1.7;
     margin: 1.5rem 0;
+    white-space: pre;
   }
 
   .yaml-key { color: var(--amber); }
@@ -309,10 +434,9 @@
   .yaml-comment { color: var(--text-dim); font-style: italic; }
   .yaml-type { color: #7ec8e3; }
 
-  /* ─── INSTALL ─────────────────────────────────────────── */
+  /* ─── INSTALL TABS ─── */
   .install-tabs {
     display: flex;
-    gap: 0;
     margin-bottom: -1px;
     position: relative;
     z-index: 1;
@@ -330,84 +454,91 @@
     transition: all 0.15s;
     border-bottom: none;
   }
-
-  .tab.active { color: var(--green); background: var(--bg3); border-color: var(--green-dim); border-bottom: 1px solid var(--bg3); }
+  .tab[aria-selected="true"] {
+    color: var(--green);
+    background: var(--bg3);
+    border-color: var(--green-dim);
+    border-bottom: 1px solid var(--bg3);
+  }
 
   .tab-panel {
     display: none;
     background: var(--bg3);
     border: 1px solid var(--green-dim);
-    padding: 1.5rem;
+    padding: 1.25rem;
     font-size: 13px;
     line-height: 1.8;
   }
-
   .tab-panel.active { display: block; }
 
   .install-cmd {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin: 0.5rem 0;
+    gap: 0.75rem;
     padding: 0.5rem 0;
     border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
   }
-
-  .install-cmd:last-child { border-bottom: none; }
+  .install-cmd:last-of-type { border-bottom: none; }
   .install-cmd .prompt { color: var(--green-dim); flex-shrink: 0; user-select: none; }
-  .install-cmd code { color: var(--text); flex: 1; }
+  .install-cmd code { color: var(--text); flex: 1; min-width: 0; word-break: break-all; }
   .install-cmd .copy-btn {
     background: none;
     border: 1px solid var(--border);
     color: var(--text-dim);
     font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
-    padding: 0.2rem 0.6rem;
+    padding: 0.25rem 0.6rem;
     cursor: pointer;
     transition: all 0.15s;
     flex-shrink: 0;
+    min-height: 32px;   /* touch target */
+    min-width: 52px;
   }
-  .install-cmd .copy-btn:hover { border-color: var(--green); color: var(--green); }
+  .install-cmd .copy-btn:hover,
   .install-cmd .copy-btn.copied { border-color: var(--green); color: var(--green); }
 
-  /* ─── FEATURES GRID ───────────────────────────────────── */
+  /* ─── FEATURES ─── */
   .features {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
     margin: 2rem 0;
   }
 
   .feature {
     border: 1px solid var(--border);
-    padding: 1.5rem;
+    padding: 1.25rem;
     background: var(--bg2);
     transition: border-color 0.2s;
   }
-
   .feature:hover { border-color: var(--green-dim); }
 
   .feature-icon {
-    font-size: 28px;
+    font-size: 26px;
     margin-bottom: 0.75rem;
     display: block;
   }
-
   .feature h3 {
     color: var(--green);
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 0.5rem;
   }
-
   .feature p { font-size: 12px; color: var(--text-dim); max-width: none; }
 
-  /* ─── COMMANDS TABLE ──────────────────────────────────── */
+  /* ─── TABLE ─── */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 1.5rem 0;
     font-size: 13px;
+    min-width: 520px;   /* force scroll rather than squish */
   }
 
   th {
@@ -427,34 +558,11 @@
     border-bottom: 1px solid var(--border);
     vertical-align: top;
   }
-
-  td:first-child { color: var(--green); white-space: nowrap; }
+  td:first-child { color: var(--green); }
   td:last-child { color: var(--text-dim); font-size: 12px; }
-
   tr:hover td { background: var(--bg2); }
 
-  /* ─── FOOTER ─────────────────────────────────────────── */
-  footer {
-    padding: 3rem 0;
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 12px;
-    line-height: 2;
-  }
-
-  footer a { color: var(--green-dim); text-decoration: none; }
-  footer a:hover { color: var(--green); text-decoration: underline; }
-
-  .footer-ascii {
-    font-size: 10px;
-    line-height: 1.2;
-    color: var(--green-dark);
-    margin: 1.5rem auto;
-    white-space: pre;
-    display: inline-block;
-  }
-
-  /* ─── BADGES ─────────────────────────────────────────── */
+  /* ─── BADGES ─── */
   .badges { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1.5rem 0; }
   .badge {
     font-size: 11px;
@@ -467,120 +575,81 @@
   .badge.amber { border-color: rgba(255,179,0,0.4); color: var(--amber); }
   .badge.blue { border-color: rgba(126,200,227,0.4); color: #7ec8e3; }
 
-  /* ─── NAV ─────────────────────────────────────────────── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    background: rgba(5, 10, 5, 0.92);
-    backdrop-filter: blur(4px);
-    border-bottom: 1px solid var(--border);
-    padding: 0.75rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .nav-logo {
-    font-family: 'VT323', monospace;
-    font-size: 22px;
-    color: var(--green);
-    letter-spacing: 0.1em;
-  }
-
-  .nav-links { display: flex; gap: 1.5rem; }
-  .nav-links a {
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 3rem 1.5rem;
+    text-align: center;
     color: var(--text-dim);
-    text-decoration: none;
     font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: color 0.15s;
+    line-height: 2;
   }
-  .nav-links a:hover { color: var(--green); }
+  footer a { color: var(--green-dim); text-decoration: none; }
+  footer a:hover { color: var(--green); text-decoration: underline; }
 
-  .nav-gh {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--green) !important;
-    border: 1px solid var(--green-dim);
-    padding: 0.3rem 0.8rem;
-    font-size: 12px !important;
-    text-decoration: none;
-    transition: all 0.15s !important;
+  .footer-ascii {
+    font-size: 9px;
+    line-height: 1.2;
+    color: var(--green-dark);
+    margin: 1.5rem auto;
+    white-space: pre;
+    display: inline-block;
+    overflow: hidden;
   }
-  .nav-gh:hover { background: var(--green-dark) !important; }
+  @media (max-width: 500px) { .footer-ascii { display: none; } }
 
-  /* noise grain */
-  body::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 999;
-    opacity: 0.4;
-  }
-
-  /* highlight */
   mark {
     background: none;
     color: var(--amber);
     font-style: italic;
   }
-
-  .big-number {
-    font-family: 'VT323', monospace;
-    font-size: clamp(60px, 10vw, 120px);
-    color: var(--green);
-    line-height: 1;
-    text-shadow: 0 0 30px rgba(0,255,65,0.3);
-    display: block;
-  }
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
 
-<nav>
-  <span class="nav-logo">fauxdata</span>
-  <div class="nav-links">
-    <a href="#why">why</a>
-    <a href="#how">how</a>
-    <a href="#schema">schema</a>
-    <a href="#install">install</a>
-    <a href="https://github.com/aborruso/fauxdata" class="nav-gh">★ GitHub</a>
+<nav aria-label="Main navigation">
+  <a href="#" class="nav-logo" aria-label="fauxdata — back to top">fauxdata</a>
+  <div class="nav-links" role="list">
+    <div class="nav-text-links" role="list">
+      <a href="#why" role="listitem">why</a>
+      <a href="#how" role="listitem">how</a>
+      <a href="#schema" role="listitem">schema</a>
+      <a href="#install" role="listitem">install</a>
+    </div>
+    <a href="https://github.com/aborruso/fauxdata" class="nav-gh" aria-label="View fauxdata on GitHub" rel="noopener noreferrer">★ GitHub</a>
   </div>
 </nav>
 
+<main id="main-content">
+
 <!-- ─── HERO ─── -->
-<section id="hero">
-  <pre class="ascii-logo glow">
+<section id="hero" aria-labelledby="hero-heading">
+  <pre class="ascii-logo glow" aria-hidden="true">
   ███████╗ █████╗ ██╗   ██╗██╗  ██╗██████╗  █████╗ ████████╗ █████╗
   ██╔════╝██╔══██╗██║   ██║╚██╗██╔╝██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
   █████╗  ███████║██║   ██║ ╚███╔╝ ██║  ██║███████║   ██║   ███████║
   ██╔══╝  ██╔══██║██║   ██║ ██╔██╗ ██║  ██║██╔══██║   ██║   ██╔══██║
   ██║     ██║  ██║╚██████╔╝██╔╝ ██╗██████╔╝██║  ██║   ██║   ██║  ██║
   ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝</pre>
+  <span class="text-logo glow" aria-hidden="true">fauxdata</span>
 
-  <p class="tagline glow">fake data. done right.</p>
+  <p class="tagline glow" id="hero-heading">fake data. done right.</p>
   <p class="subtagline">because your real data is a disaster anyway</p>
 
-  <div class="hero-prompt">
-    <span class="prompt-text">fauxdata generate schemas/people.yml --rows 1000 --validate</span>
+  <div class="hero-prompt" aria-label="Example command: fauxdata generate schemas/people.yml --rows 1000 --validate">
+    <span class="prompt-text" aria-hidden="true">fauxdata generate schemas/people.yml --rows 1000 --validate</span>
   </div>
 
-  <p class="scroll-hint">▼ scroll down ▼</p>
+  <p class="scroll-hint" aria-hidden="true">▼ scroll down ▼</p>
 </section>
 
 <!-- ─── WHY ─── -->
-<section id="why">
+<section id="why" aria-labelledby="why-heading">
   <div class="container">
-    <p class="section-label">// the problem</p>
-    <h2>your real data<br>is lying to you</h2>
+    <p class="section-label" aria-hidden="true">// the problem</p>
+    <h2 id="why-heading">your real data<br>is lying to you</h2>
 
     <p>You've seen it. A column called <code class="amber">email</code> containing <code class="red">"test@test.com"</code>, <code class="red">"N/A"</code>, and a phone number. A date field with <code class="red">1900-01-01</code>. An age column that thinks someone is 847 years old. A <code class="amber">country</code> column that contains 73 different spellings of "Italy".</p>
 
@@ -589,7 +658,7 @@
     <div class="compare-grid">
       <div class="compare-card bad">
         <h3>☠ real data</h3>
-        <ul class="check-list fails">
+        <ul class="check-list fails" aria-label="Problems with real data">
           <li>null values where there shouldn't be any</li>
           <li>emails like "aaa@bbb" or just "no"</li>
           <li>ages of 0, 999, or -3</li>
@@ -602,7 +671,7 @@
       </div>
       <div class="compare-card good">
         <h3>✓ fauxdata</h3>
-        <ul class="check-list passes">
+        <ul class="check-list passes" aria-label="Benefits of fauxdata">
           <li>zero nulls — unless you asked for them</li>
           <li>emails that look like actual emails</li>
           <li>ages between 18 and 90, as specified</li>
@@ -615,13 +684,12 @@
       </div>
     </div>
 
-    <!-- animated terminal: real data fails -->
-    <div class="terminal" id="term-bad">
-      <div class="terminal-bar">
+    <div class="terminal" id="term-bad" aria-label="Terminal showing real data failing validation" role="region">
+      <div class="terminal-bar" aria-hidden="true">
         <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
         <span style="margin-left:0.5rem">validating real_data_FINAL_v3_USE_THIS.csv</span>
       </div>
-      <div class="terminal-body" id="term-bad-body">
+      <div class="terminal-body" aria-hidden="true">
         <span class="t-line t-cmd">fauxdata validate real_data.csv schemas/people.yml</span>
         <span class="t-line t-out anim-row">Loaded 4821 rows, 9 columns</span>
         <span class="t-line t-section anim-row">Running validation...</span>
@@ -634,13 +702,12 @@
       </div>
     </div>
 
-    <!-- animated terminal: fauxdata passes -->
-    <div class="terminal" id="term-good">
-      <div class="terminal-bar">
+    <div class="terminal" id="term-good" aria-label="Terminal showing fauxdata passing all validation rules" role="region">
+      <div class="terminal-bar" aria-hidden="true">
         <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
         <span style="margin-left:0.5rem">validating fauxdata output — schema: people.yml</span>
       </div>
-      <div class="terminal-body" id="term-good-body">
+      <div class="terminal-body" aria-hidden="true">
         <span class="t-line t-cmd">fauxdata generate schemas/people.yml --rows 1000 --validate</span>
         <span class="t-line t-out anim-row">Generated 1000 rows (seed=42, locale=IT)</span>
         <span class="t-line t-section anim-row">Running validation...</span>
@@ -652,72 +719,69 @@
         <span class="t-line t-pass anim-row" style="font-weight:600">✓ 5/5 rules passed. This fake data is more real than your real data.</span>
       </div>
     </div>
-
   </div>
 </section>
 
 <!-- ─── HOW ─── -->
-<section id="how">
+<section id="how" aria-labelledby="how-heading">
   <div class="container">
-    <p class="section-label">// how it works</p>
-    <h2>define once.<br>generate forever.</h2>
+    <p class="section-label" aria-hidden="true">// how it works</p>
+    <h2 id="how-heading">define once.<br>generate forever.</h2>
 
     <p>Write a YAML schema. Run one command. Get a perfect, validated, reproducible dataset — in any format, any size, any locale.</p>
 
     <div class="features">
       <div class="feature">
-        <span class="feature-icon">📐</span>
+        <span class="feature-icon" aria-hidden="true">📐</span>
         <h3>schema-first</h3>
         <p>One YAML file defines everything: column types, ranges, presets, and validation rules. The schema is both the blueprint and the contract.</p>
       </div>
       <div class="feature">
-        <span class="feature-icon">🌍</span>
+        <span class="feature-icon" aria-hidden="true">🌍</span>
         <h3>locale-aware</h3>
         <p>Set <code>locale: IT</code> and get Italian names, cities, email domains, IBANs, and phone formats — all coherent within each row. Works for 100+ countries.</p>
       </div>
       <div class="feature">
-        <span class="feature-icon">✅</span>
+        <span class="feature-icon" aria-hidden="true">✅</span>
         <h3>validated by design</h3>
         <p>The same schema that defines generation also drives validation. Run <code>--validate</code> and know your data is correct before it touches your pipeline.</p>
       </div>
       <div class="feature">
-        <span class="feature-icon">🔁</span>
+        <span class="feature-icon" aria-hidden="true">🔁</span>
         <h3>reproducible</h3>
         <p>Set <code>seed: 42</code> and generate the exact same dataset every time. Share the schema, share the seed, share the data.</p>
       </div>
       <div class="feature">
-        <span class="feature-icon">|</span>
+        <span class="feature-icon" aria-hidden="true">⏐</span>
         <h3>pipeline-friendly</h3>
-        <p>Use <code>--out -</code> to pipe data directly to stdout. No files, no noise, no headers — just clean data flowing through your tools.</p>
+        <p>Use <code>--out -</code> to pipe data directly to stdout. No files, no noise — just clean data flowing through your tools.</p>
       </div>
       <div class="feature">
-        <span class="feature-icon">📦</span>
+        <span class="feature-icon" aria-hidden="true">📦</span>
         <h3>multi-format</h3>
         <p>CSV, Parquet, JSON, JSONL — the dataset, not the tool, decides the format. Switch with one flag.</p>
       </div>
     </div>
 
-    <div class="badges">
+    <div class="badges" aria-label="Technologies used">
       <span class="badge green">pointblank 0.22+</span>
       <span class="badge green">polars</span>
       <span class="badge amber">python 3.11+</span>
       <span class="badge blue">100+ locales</span>
       <span class="badge green">CI-friendly</span>
     </div>
-
   </div>
 </section>
 
 <!-- ─── SCHEMA ─── -->
-<section id="schema">
+<section id="schema" aria-labelledby="schema-heading">
   <div class="container">
-    <p class="section-label">// the schema</p>
-    <h2>YAML so readable<br>your PM could write it</h2>
+    <p class="section-label" aria-hidden="true">// the schema</p>
+    <h2 id="schema-heading">YAML so readable<br>your PM could write it</h2>
 
     <p>A schema is a plain YAML file. It describes the structure of your dataset, the constraints for each column, and the validation rules to apply. One file. Everything in it.</p>
 
-    <div class="code-block">
-<span class="yaml-comment"># schemas/people.yml</span>
+    <div class="code-block" role="region" aria-label="Example YAML schema for a people dataset"><span class="yaml-comment"># schemas/people.yml</span>
 <span class="yaml-key">name</span>: <span class="yaml-val">people</span>
 <span class="yaml-key">rows</span>: <span class="yaml-val">1000</span>
 <span class="yaml-key">seed</span>: <span class="yaml-val">42</span>         <span class="yaml-comment"># reproducible — same seed, same data</span>
@@ -760,52 +824,53 @@
   - <span class="yaml-key">rule</span>: <span class="yaml-val">col_vals_between</span>
     <span class="yaml-key">column</span>: <span class="yaml-val">age</span>  <span class="yaml-key">min</span>: <span class="yaml-val">18</span>  <span class="yaml-key">max</span>: <span class="yaml-val">90</span>
   - <span class="yaml-key">rule</span>: <span class="yaml-val">rows_distinct</span>
-    <span class="yaml-key">columns</span>: <span class="yaml-val">[id]</span>
-    </div>
+    <span class="yaml-key">columns</span>: <span class="yaml-val">[id]</span></div>
 
     <p class="dim" style="font-size:12px">Available presets: <code>name · email · phone_number · city · country_code_2 · company · job · address · postcode · ipv4 · uuid4 · iban · url · user_name · sentence · word</code> and more.</p>
   </div>
 </section>
 
 <!-- ─── COMMANDS ─── -->
-<section id="commands">
+<section id="commands" aria-labelledby="commands-heading">
   <div class="container">
-    <p class="section-label">// the commands</p>
-    <h2>four commands.<br>one tool.</h2>
+    <p class="section-label" aria-hidden="true">// the commands</p>
+    <h2 id="commands-heading">four commands.<br>one tool.</h2>
 
-    <table>
-      <thead>
-        <tr>
-          <th>command</th>
-          <th>what it does</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>fauxdata generate SCHEMA</td>
-          <td>Generate a dataset from a YAML schema. Options: <code>--rows</code>, <code>--format</code>, <code>--seed</code>, <code>--out -</code> (stdout), <code>--validate</code></td>
-        </tr>
-        <tr>
-          <td>fauxdata validate DATASET SCHEMA</td>
-          <td>Validate an existing file against a schema. Exits with code 1 on failure — CI-ready.</td>
-        </tr>
-        <tr>
-          <td>fauxdata preview DATASET</td>
-          <td>Show the first N rows and column statistics (type, nulls, unique, min/max).</td>
-        </tr>
-        <tr>
-          <td>fauxdata init [--name]</td>
-          <td>Interactive wizard to create a new schema template.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">command</th>
+            <th scope="col">what it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>fauxdata generate SCHEMA</code></td>
+            <td>Generate a dataset from a YAML schema. Options: <code>--rows</code>, <code>--format</code>, <code>--seed</code>, <code>--out -</code> (stdout), <code>--validate</code></td>
+          </tr>
+          <tr>
+            <td><code>fauxdata validate DATASET SCHEMA</code></td>
+            <td>Validate an existing file against a schema. Exits with code 1 on failure — CI-ready.</td>
+          </tr>
+          <tr>
+            <td><code>fauxdata preview DATASET</code></td>
+            <td>Show the first N rows and column statistics (type, nulls, unique, min/max).</td>
+          </tr>
+          <tr>
+            <td><code>fauxdata init [--name]</code></td>
+            <td>Interactive wizard to create a new schema template.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <div class="terminal">
-      <div class="terminal-bar">
+    <div class="terminal" aria-label="Pipeline usage example" role="region">
+      <div class="terminal-bar" aria-hidden="true">
         <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
         <span style="margin-left:0.5rem">pipeline example</span>
       </div>
-      <div class="terminal-body">
+      <div class="terminal-body" aria-hidden="true">
         <span class="t-line t-cmd">fauxdata generate schemas/orders.yml --rows 10000 --out - --format jsonl \</span>
         <span class="t-line dim" style="padding-left:2rem">| python3 transform.py \</span>
         <span class="t-line dim" style="padding-left:2rem">| duckdb -c "SELECT status, COUNT(*) FROM '/dev/stdin' GROUP BY ALL"</span>
@@ -823,109 +888,131 @@
 </section>
 
 <!-- ─── INSTALL ─── -->
-<section id="install">
+<section id="install" aria-labelledby="install-heading">
   <div class="container">
-    <p class="section-label">// install</p>
-    <h2>up and running<br>in 30 seconds.</h2>
+    <p class="section-label" aria-hidden="true">// install</p>
+    <h2 id="install-heading">up and running<br>in 30 seconds.</h2>
 
-    <div class="install-tabs">
-      <button class="tab active" onclick="switchTab('uv')">uv (recommended)</button>
-      <button class="tab" onclick="switchTab('pip')">pip</button>
+    <div role="tablist" aria-label="Installation methods" class="install-tabs">
+      <button role="tab" id="tab-btn-uv" aria-selected="true" aria-controls="tab-uv" class="tab" onclick="switchTab('uv')">uv (recommended)</button>
+      <button role="tab" id="tab-btn-pip" aria-selected="false" aria-controls="tab-pip" class="tab" onclick="switchTab('pip')">pip</button>
     </div>
 
-    <div class="tab-panel active" id="tab-uv">
+    <div role="tabpanel" id="tab-uv" aria-labelledby="tab-btn-uv" class="tab-panel active">
       <div class="install-cmd">
-        <span class="prompt">$</span>
-        <code>git clone https://github.com/aborruso/fauxdata && cd fauxdata</code>
-        <button class="copy-btn" onclick="copyCmd(this, 'git clone https://github.com/aborruso/fauxdata && cd fauxdata')">copy</button>
+        <span class="prompt" aria-hidden="true">$</span>
+        <code>git clone https://github.com/aborruso/fauxdata &amp;&amp; cd fauxdata</code>
+        <button class="copy-btn" onclick="copyCmd(this, 'git clone https://github.com/aborruso/fauxdata && cd fauxdata')" aria-label="Copy git clone command">copy</button>
       </div>
       <div class="install-cmd">
-        <span class="prompt">$</span>
+        <span class="prompt" aria-hidden="true">$</span>
         <code>uv tool install .</code>
-        <button class="copy-btn" onclick="copyCmd(this, 'uv tool install .')">copy</button>
+        <button class="copy-btn" onclick="copyCmd(this, 'uv tool install .')" aria-label="Copy uv tool install command">copy</button>
       </div>
       <div class="install-cmd">
-        <span class="prompt">$</span>
+        <span class="prompt" aria-hidden="true">$</span>
         <code>fauxdata --help</code>
-        <button class="copy-btn" onclick="copyCmd(this, 'fauxdata --help')">copy</button>
+        <button class="copy-btn" onclick="copyCmd(this, 'fauxdata --help')" aria-label="Copy fauxdata help command">copy</button>
       </div>
-      <p class="dim" style="margin-top:1rem; font-size:12px"><a href="https://docs.astral.sh/uv/" style="color:var(--green-dim)">uv</a> installs fauxdata as an isolated tool. No virtualenv activation needed. <code>fauxdata</code> is available from any directory.</p>
+      <p class="dim" style="margin-top:1rem; font-size:12px"><a href="https://docs.astral.sh/uv/" style="color:var(--green-dim)" rel="noopener noreferrer">uv</a> installs fauxdata as an isolated tool available from any directory — no virtualenv activation needed.</p>
     </div>
 
-    <div class="tab-panel" id="tab-pip">
+    <div role="tabpanel" id="tab-pip" aria-labelledby="tab-btn-pip" class="tab-panel">
       <div class="install-cmd">
-        <span class="prompt">$</span>
-        <code>git clone https://github.com/aborruso/fauxdata && cd fauxdata</code>
-        <button class="copy-btn" onclick="copyCmd(this, 'git clone https://github.com/aborruso/fauxdata && cd fauxdata')">copy</button>
+        <span class="prompt" aria-hidden="true">$</span>
+        <code>git clone https://github.com/aborruso/fauxdata &amp;&amp; cd fauxdata</code>
+        <button class="copy-btn" onclick="copyCmd(this, 'git clone https://github.com/aborruso/fauxdata && cd fauxdata')" aria-label="Copy git clone command">copy</button>
       </div>
       <div class="install-cmd">
-        <span class="prompt">$</span>
+        <span class="prompt" aria-hidden="true">$</span>
         <code>pip install .</code>
-        <button class="copy-btn" onclick="copyCmd(this, 'pip install .')">copy</button>
+        <button class="copy-btn" onclick="copyCmd(this, 'pip install .')" aria-label="Copy pip install command">copy</button>
       </div>
       <div class="install-cmd">
-        <span class="prompt">$</span>
+        <span class="prompt" aria-hidden="true">$</span>
         <code>fauxdata --help</code>
-        <button class="copy-btn" onclick="copyCmd(this, 'fauxdata --help')">copy</button>
+        <button class="copy-btn" onclick="copyCmd(this, 'fauxdata --help')" aria-label="Copy fauxdata help command">copy</button>
       </div>
     </div>
-
   </div>
 </section>
+
+</main>
 
 <!-- ─── FOOTER ─── -->
 <footer>
   <div class="container">
-    <pre class="footer-ascii">
+    <pre class="footer-ascii" aria-hidden="true">
  ___  _ _ _   _ _  ___  _ _  _  _ _    ___  _ _ _
 |  _|| | | | | | ||  _||_' || || | |  | __||_' |_'|
 | |_ | | | |_| | || |_  / /  >  < |__ | |_  / / / /
 |___||_____| |___||___|/_/  |_||_|____||___||_||_|</pre>
-    <p>built with <a href="https://github.com/posit-dev/pointblank">pointblank</a> by Posit · inspired by <a href="https://posit.co/blog/building-realistic-fake-datasets-with-pointblank/">this blog post</a></p>
-    <p><a href="https://github.com/aborruso/fauxdata">github.com/aborruso/fauxdata</a> · MIT License</p>
+    <p>built with <a href="https://github.com/posit-dev/pointblank" rel="noopener noreferrer">pointblank</a> by Posit · inspired by <a href="https://posit.co/blog/building-realistic-fake-datasets-with-pointblank/" rel="noopener noreferrer">this blog post</a></p>
+    <p><a href="https://github.com/aborruso/fauxdata" rel="noopener noreferrer">github.com/aborruso/fauxdata</a> · MIT License</p>
     <p class="dim" style="margin-top:1rem; font-size:11px">// no real data was harmed in the making of this tool</p>
   </div>
 </footer>
 
 <script>
-  // custom cursor
-  const cursor = document.getElementById('cursor');
-  document.addEventListener('mousemove', e => {
-    cursor.style.left = e.clientX + 'px';
-    cursor.style.top = e.clientY + 'px';
-  });
-
-  // tab switch
-  function switchTab(name) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    event.target.classList.add('active');
+  // custom cursor — only on pointer devices
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
   }
+
+  // tab switch with ARIA
+  function switchTab(name) {
+    document.querySelectorAll('[role="tab"]').forEach(t => {
+      t.setAttribute('aria-selected', 'false');
+    });
+    document.querySelectorAll('[role="tabpanel"]').forEach(p => {
+      p.classList.remove('active');
+    });
+    document.getElementById('tab-' + name).classList.add('active');
+    document.getElementById('tab-btn-' + name).setAttribute('aria-selected', 'true');
+  }
+
+  // keyboard nav for tabs
+  document.querySelectorAll('[role="tab"]').forEach(tab => {
+    tab.addEventListener('keydown', e => {
+      const tabs = [...document.querySelectorAll('[role="tab"]')];
+      const idx = tabs.indexOf(e.currentTarget);
+      if (e.key === 'ArrowRight') { tabs[(idx + 1) % tabs.length].focus(); tabs[(idx + 1) % tabs.length].click(); }
+      if (e.key === 'ArrowLeft') { tabs[(idx - 1 + tabs.length) % tabs.length].focus(); tabs[(idx - 1 + tabs.length) % tabs.length].click(); }
+    });
+  });
 
   // copy button
   function copyCmd(btn, text) {
     navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
       btn.textContent = 'copied!';
       btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
     });
   }
 
-  // animate terminal rows on scroll
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const rows = entry.target.querySelectorAll('.anim-row');
-        rows.forEach((row, i) => {
-          setTimeout(() => row.classList.add('visible'), i * 120);
-        });
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.2 });
-
-  document.querySelectorAll('.terminal').forEach(t => observer.observe(t));
+  // animate terminal rows on scroll — skip if reduced motion
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReduced) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.anim-row').forEach((row, i) => {
+            setTimeout(() => row.classList.add('visible'), i * 120);
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.terminal').forEach(t => observer.observe(t));
+  } else {
+    // show all rows immediately
+    document.querySelectorAll('.anim-row').forEach(r => r.classList.add('visible'));
+  }
 </script>
 </body>
 </html>
