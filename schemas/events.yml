@@ -1,0 +1,54 @@
+name: events
+description: "Analytics events log"
+rows: 2000
+seed: 999
+
+output:
+  format: jsonl
+  path: tmp/events.jsonl
+
+columns:
+  event_id:
+    type: string
+    preset: uuid4
+    unique: true
+
+  user_id:
+    type: int
+    min: 1
+    max: 10000
+
+  event_type:
+    type: string
+    values: [page_view, click, form_submit, purchase, login, logout, search]
+
+  timestamp:
+    type: datetime
+    min: "2024-01-01T00:00:00"
+    max: "2024-12-31T23:59:59"
+
+  ip:
+    type: string
+    preset: ipv4
+
+  user_agent:
+    type: string
+    preset: user_name
+
+  session_duration:
+    type: int
+    min: 1
+    max: 3600
+
+validation:
+  - rule: col_vals_not_null
+    columns: [event_id, user_id, event_type, timestamp]
+  - rule: rows_distinct
+    columns: [event_id]
+  - rule: col_vals_in_set
+    column: event_type
+    values: [page_view, click, form_submit, purchase, login, logout, search]
+  - rule: col_vals_between
+    column: session_duration
+    min: 1
+    max: 3600
