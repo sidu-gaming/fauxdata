@@ -876,11 +876,13 @@
         <span class="t-line dim" style="padding-left:2rem">| duckdb -c "SELECT status, COUNT(*) FROM '/dev/stdin' GROUP BY ALL"</span>
         <br>
         <span class="t-line t-out">┌───────────┬──────────┐</span>
-        <span class="t-line t-out">│ status    │ count(*) │</span>
-        <span class="t-line t-out">│ delivered │ 3124     │</span>
-        <span class="t-line t-out">│ shipped   │ 2891     │</span>
-        <span class="t-line t-out">│ pending   │ 2003     │</span>
-        <span class="t-line t-out">│ cancelled │ 1982     │</span>
+        <span class="t-line t-out">│  status   │ count(*) │</span>
+        <span class="t-line t-out">│  varchar  │  int64   │</span>
+        <span class="t-line t-out">├───────────┼──────────┤</span>
+        <span class="t-line t-out">│ delivered │     3124 │</span>
+        <span class="t-line t-out">│ shipped   │     2891 │</span>
+        <span class="t-line t-out">│ pending   │     2003 │</span>
+        <span class="t-line t-out">│ cancelled │     1982 │</span>
         <span class="t-line t-out">└───────────┴──────────┘</span>
       </div>
     </div>
